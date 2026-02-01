@@ -14,3 +14,14 @@ sources:
   - https://github.com/knadh/listmonk
 maintainers:
   - name: Nova Assistant AI
+annotations:
+  # Artifact Hub annotations (https://artifacthub.io/docs/topics/annotations/helm/)
+  artifacthub.io/category: streaming-messaging
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/links: |
+    - name: Listmonk
+      url: https://listmonk.app
+    - name: Source
+      url: https://github.com/knadh/listmonk
+    - name: Support
+      url: https://github.com/knadh/listmonk/issues

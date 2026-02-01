@@ -1,0 +1,23 @@
+# Artifact Hub repository metadata
+# https://artifacthub.io/docs/topics/repositories/helm-charts/
+#
+# This file must be placed at the SAME level as your chart repository index.yaml
+# and served from your chart repository HTTP server (e.g. GitHub Pages).
+# Copy this file next to index.yaml when publishing your Helm repo.
+#
+# After adding your repo to Artifact Hub, get the repository ID from the
+# repository card and set it below to enable the "Verified publisher" badge.
+#
+# repositoryID: <your-repo-id-from-artifact-hub>
+#
+# owners:  # Optional; used for ownership claim / verified publisher
+#   - name: Your Name
+#     email: your-email@example.com
+#
+# ignore:  # Optional; packages to exclude from indexing
+#   - name: some-chart
+#     version: "*-dev"
+
+repositoryID: ""
+owners: []
+ignore: []

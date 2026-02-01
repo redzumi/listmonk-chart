@@ -164,6 +164,17 @@ kubectl get endpoints -n listmonk listmonk
 - ✅ Helm-native resource management
 - ✅ Standard Helm patterns
 
+## Publishing to Artifact Hub
+
+This chart is structured for [Artifact Hub](https://artifacthub.io/docs/topics/repositories/helm-charts/):
+
+1. **Chart metadata** – `Chart.yaml` includes Artifact Hub annotations (`category`, `license`, `links`).
+2. **Package contents** – `README.md` and `LICENSE` are included in the chart package so Artifact Hub can display them.
+3. **Repository metadata** – `artifacthub-repo.yml` in the repo root is a template for your chart repository. When you publish your Helm repo (e.g. GitHub Pages):
+   - Build the index: `helm package . && helm repo index . --url https://your-user.github.io/listmonk-chart`
+   - Copy `artifacthub-repo.yml` into the same directory as `index.yaml` and serve it from that URL.
+   - Add the repository in [Artifact Hub](https://artifacthub.io) (Repositories → Add). After it’s added, set `repositoryID` in `artifacthub-repo.yml` to enable the “Verified publisher” badge.
+
 ## Values Reference
 
 See `values.yaml` for all available options with inline documentation.
