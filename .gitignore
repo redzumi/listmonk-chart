@@ -1,0 +1,21 @@
+# Helm
+*.tgz
+charts/
+
+# Local values overrides (may contain secrets)
+values-*.yaml
+!values.yaml
+secrets.yaml
+*.env
+.env
+.env.*
+
+# IDE / OS
+.DS_Store
+.idea/
+*.swp
+*.swo
+*~
+
+# Debug
+*.log

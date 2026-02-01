@@ -1,0 +1,159 @@
+## Listmonk Configuration
+
+replicaCount: 1
+
+image:
+  repository: listmonk/listmonk
+  pullPolicy: IfNotPresent
+  tag: "v6.0.0"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+## Service Account
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+## Pod Security
+podAnnotations: {}
+podSecurityContext:
+  fsGroup: 1000
+securityContext:
+  runAsUser: 1000
+  runAsNonRoot: true
+  allowPrivilegeEscalation: false
+
+## Service Configuration
+service:
+  type: ClusterIP
+  port: 9000
+
+## Ingress Configuration
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: example-tls
+      hosts:
+        - example.com
+
+## Resource Limits
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+## Autoscaling (disabled by default)
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+
+## Node Selection
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+## Probes
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /health
+    port: 9000
+  initialDelaySeconds: 60
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /health
+    port: 9000
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+## Admin Configuration
+admin:
+  username: admin
+  password: "change-me"
+
+## App Configuration
+app:
+  address: "0.0.0.0:9000"
+  lang: "en"
+
+## Database Configuration
+database:
+  # When using embedded postgres (postgres.enabled), leave as listmonk-postgres.
+  # If using nameOverride/fullnameOverride with external Postgres, set this to your DB host or the Postgres service name.
+  host: "listmonk-postgres"
+  port: 5432
+  name: listmonk
+  user: listmonk
+  sslMode: disable
+  maxOpen: 25
+  maxIdle: 25
+  maxLifetime: "300s"
+  # Password will be fetched from existing secret if provided
+  existingSecret: ""
+  passwordKey: "password"
+
+## Embedded Postgres (no operator required)
+postgres:
+  enabled: true
+  image:
+    repository: "postgres"
+    tag: "15"
+  storage:
+    size: 4Gi
+    storageClass: ""
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+
+## SMTP Configuration
+smtp:
+  enabled: false
+  # Create secret with SMTP credentials
+  # If existingSecret is set, credentials below are ignored
+  existingSecret: ""
+  host: "smtp.example.com"
+  port: 587
+  username: "user@example.com"
+  password: "change-me"
+  from: "noreply@example.com"
+  authProtocol: "login"
+  tlsEnabled: true
+  tlsSkipVerify: false
+  maxConns: 10
+  idleTimeout: "15s"
+  waitTimeout: "5s"
+  maxMsgRetries: 2
+  helloHostname: ""
+
+## Database Initialization
+init:
+  enabled: true
+  # Run database initialization as pre-install hook
+  runAsHook: false

@@ -1,0 +1,16 @@
+apiVersion: v2
+name: listmonk
+description: Self-hosted newsletter and mailing list manager
+type: application
+version: 1.0.0
+appVersion: "v6.0.0"
+keywords:
+  - listmonk
+  - newsletter
+  - email
+  - mailing-list
+home: https://listmonk.app
+sources:
+  - https://github.com/knadh/listmonk
+maintainers:
+  - name: Nova Assistant AI
