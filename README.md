@@ -20,7 +20,23 @@ Production-ready Helm chart for [Listmonk](https://listmonk.app) — self-hosted
 helm install listmonk . -n listmonk
 ```
 
-See `values.yaml` for all options. Main sections: `database`, `postgres`, `smtp`, `admin`, `ingress`.
+## Configuration
+
+All options are in `values.yaml`. Main sections:
+
+| Section | Purpose |
+|--------|--------|
+| `replicaCount`, `image` | Listmonk app replicas and image |
+| `database` | DB host, port, name, user; use `listmonk-postgres` when embedded Postgres is enabled |
+| `postgres` | Embedded Postgres: image, storage, resources, migration hook, PDB, `waitForDatabase` |
+| `smtp` | SMTP secret from values; set `enabled: true` and fill host/port/credentials |
+| `admin` | Admin username/password (used by init job) |
+| `ingress` | Hosts, TLS, `className`; set `enabled: true` for external access |
+| `resources`, `autoscaling` | CPU/memory; optional HPA |
+| `podDisruptionBudget` | PDB for Listmonk pods (default `minAvailable: 0`) |
+| `init` | DB init job: `enabled`, `runAsHook` (pre-install/pre-upgrade) |
+
+Override with `--set` or a custom `values` file. See `values.yaml` for full options and comments.
 
 ## SMTP
 
@@ -52,6 +68,19 @@ helm uninstall listmonk -n listmonk
 ```
 
 Delete PVCs and secrets manually if you want a full purge.
+
+## Comparison with other charts
+
+| | This chart (redzumi/listmonk-chart) | Deliveryhero / community listmonk chart |
+|--|--------------------------------------|----------------------------------------|
+| **Install** | `helm install` only | Install script + `helm` + patches |
+| **Database** | Embedded Postgres (StatefulSet) or external | Often external or custom Postgres |
+| **SMTP** | Secret from values; configure in Admin UI | Manual or script-based |
+| **Upgrades** | Pre-upgrade hook migrates StatefulSet when needed; idempotent init | Manual migration or broken upgrades |
+| **Stability** | PDBs, DB wait init, startup probe, job timeouts | Varies |
+| **Maintenance** | Standard Helm; single chart repo | Scripts + chart + docs in multiple places |
+
+This chart aims for a single `helm install`/`helm upgrade` flow, no extra scripts, and safe upgrades with embedded Postgres.
 
 ## Troubleshooting
 
