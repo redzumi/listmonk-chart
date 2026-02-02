@@ -1,6 +1,10 @@
 # Helm
 *.tgz
 charts/
+# Allow Helm repo files in docs/ for GitHub Pages (Artifact Hub)
+!docs/
+!docs/index.yaml
+!docs/*.tgz
 
 # Local values overrides (may contain secrets)
 values-*.yaml

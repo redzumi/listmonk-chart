@@ -166,14 +166,39 @@ kubectl get endpoints -n listmonk listmonk
 
 ## Publishing to Artifact Hub
 
-This chart is structured for [Artifact Hub](https://artifacthub.io/docs/topics/repositories/helm-charts/):
+Artifact Hub requires a **Helm repository URL** that serves `index.yaml` and chart `.tgz` files—not the raw GitHub source URL. This repo supports two ways to publish.
 
-1. **Chart metadata** – `Chart.yaml` includes Artifact Hub annotations (`category`, `license`, `links`).
-2. **Package contents** – `README.md` and `LICENSE` are included in the chart package so Artifact Hub can display them.
-3. **Repository metadata** – `artifacthub-repo.yml` in the repo root is a template for your chart repository. When you publish your Helm repo (e.g. GitHub Pages):
-   - Build the index: `helm package . && helm repo index . --url https://your-user.github.io/listmonk-chart`
-   - Copy `artifacthub-repo.yml` into the same directory as `index.yaml` and serve it from that URL.
-   - Add the repository in [Artifact Hub](https://artifacthub.io) (Repositories → Add). After it’s added, set `repositoryID` in `artifacthub-repo.yml` to enable the “Verified publisher” badge.
+### Option A: GitHub Actions (recommended)
+
+A workflow builds the Helm repo and deploys it to GitHub Pages on every push to `main`/`master`.
+
+1. **Enable GitHub Pages from Actions**
+   - Repo → **Settings** → **Pages**
+   - **Build and deployment** → **Source**: **GitHub Actions**
+
+2. **Push to `main` (or `master`)**  
+   The [Publish Helm repo](.github/workflows/publish-helm-repo.yml) workflow runs, builds the chart and index, and deploys to Pages.
+
+3. **Add the repository in Artifact Hub**
+   - Go to [Artifact Hub](https://artifacthub.io) → **Repositories** → **Add**
+   - **Kind**: Helm charts
+   - **URL** (no trailing slash):
+     ```
+     https://<owner>.github.io/<repo>
+     ```
+     Example: `https://myuser.github.io/listmonk-chart`
+
+4. **(Optional) Verified publisher**  
+   After adding the repo, copy its **repository ID** from Artifact Hub, set it in `artifacthub-repo.yml` in the repo root, and push. The “Verified publisher” badge will appear after the next re-index.
+
+### Option B: Manual build and branch-based Pages
+
+If you prefer to deploy from a branch and folder:
+
+1. Build: `REPO_URL="https://<owner>.github.io/<repo>" ./scripts/build-repo.sh`
+2. Commit and push the generated `docs/` contents.
+3. In **Settings** → **Pages**, set **Source** to **Deploy from a branch**, branch `main`, folder **/docs**.
+4. Add the same URL in Artifact Hub as above.
 
 ## Values Reference
 
