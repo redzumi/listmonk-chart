@@ -89,12 +89,3 @@ kubectl get pods -n listmonk -l app.kubernetes.io/name=listmonk
 kubectl logs -n listmonk -l app.kubernetes.io/name=listmonk -f
 kubectl logs -n listmonk job/<release-name>-init
 ```
-
-## Publishing to Artifact Hub
-
-Use a **Helm repo URL** (e.g. `https://<owner>.github.io/<repo>`) that serves `index.yaml` and chart `.tgz` — not the GitHub source URL.
-
-- **Option A:** Enable GitHub Pages from **Actions**. Push to `main`; the workflow builds and deploys. Add the Pages URL in Artifact Hub.
-- **Option B:** Run `REPO_URL="https://<owner>.github.io/<repo>" ./scripts/build-repo.sh`, commit `docs/`, set Pages to deploy from branch `main` folder `/docs`, then add that URL in Artifact Hub.
-
-Ensure `https://<owner>.github.io/<repo>/index.yaml` returns YAML before adding the repo in Artifact Hub.
