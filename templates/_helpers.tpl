@@ -80,3 +80,11 @@ Get SMTP secret name
 {{- printf "%s-smtp" (include "listmonk.fullname" .) }}
 {{- end }}
 {{- end }}
+
+{{/*
+PostgreSQL StatefulSet name (single source of truth for PVC naming).
+Do not change nameOverride after first install or PVC will be orphaned.
+*/}}
+{{- define "listmonk.postgresStatefulSetName" -}}
+{{- printf "%s-postgres" (include "listmonk.name" .) }}
+{{- end }}

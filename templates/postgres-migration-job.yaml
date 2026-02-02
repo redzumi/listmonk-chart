@@ -12,6 +12,8 @@ metadata:
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 spec:
   ttlSecondsAfterFinished: 300
+  activeDeadlineSeconds: 300
+  backoffLimit: 1
   template:
     metadata:
       name: postgres-migration
@@ -20,34 +22,34 @@ spec:
       serviceAccountName: {{ include "listmonk.fullname" . }}-migration
       containers:
       - name: migrate
-        image: bitnami/kubectl:latest
+        image: {{ .Values.postgres.migration.image | default "bitnami/kubectl:1.30" }}
         command:
         - /bin/bash
         - -c
         - |
           set -e
+          STS="{{ include "listmonk.postgresStatefulSetName" . }}"
+          NS="{{ .Release.Namespace }}"
+          SELECTOR="app.kubernetes.io/name=${STS},app.kubernetes.io/instance={{ .Release.Name }}"
+
           echo "Checking if StatefulSet migration is needed..."
-
-          # Check if StatefulSet exists
-          if kubectl get statefulset {{ include "listmonk.name" . }}-postgres -n {{ .Release.Namespace }} >/dev/null 2>&1; then
-            echo "StatefulSet exists, checking for immutable field changes..."
-
-            # Scale down
-            echo "Scaling down StatefulSet..."
-            kubectl scale statefulset {{ include "listmonk.name" . }}-postgres -n {{ .Release.Namespace }} --replicas=0
-
-            # Wait for pod deletion
-            echo "Waiting for pods to terminate..."
-            kubectl wait --for=delete pod/{{ include "listmonk.name" . }}-postgres-0 -n {{ .Release.Namespace }} --timeout=120s || true
-
-            # Delete StatefulSet but keep PVCs
-            echo "Deleting StatefulSet (preserving PVCs)..."
-            kubectl delete statefulset {{ include "listmonk.name" . }}-postgres -n {{ .Release.Namespace }} --cascade=orphan
-
-            echo "Migration complete. StatefulSet will be recreated with new spec."
-          else
+          if ! kubectl get statefulset "$STS" -n "$NS" >/dev/null 2>&1; then
             echo "No existing StatefulSet found, skipping migration."
+            exit 0
           fi
+
+          echo "StatefulSet exists; scaling down (preserving PVCs)..."
+          kubectl scale statefulset "$STS" -n "$NS" --replicas=0
+
+          echo "Waiting for pods to terminate..."
+          if kubectl get pods -n "$NS" -l "$SELECTOR" -o name 2>/dev/null | head -1 | grep -q .; then
+            kubectl wait --for=delete pod -l "$SELECTOR" -n "$NS" --timeout=120s || true
+          fi
+
+          echo "Deleting StatefulSet (--cascade=orphan, PVCs preserved)..."
+          kubectl delete statefulset "$STS" -n "$NS" --cascade=orphan
+
+          echo "Migration complete. StatefulSet will be recreated by Helm."
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -71,6 +73,7 @@ metadata:
 rules:
 - apiGroups: ["apps"]
   resources: ["statefulsets"]
+  resourceNames: ["{{ include "listmonk.postgresStatefulSetName" . }}"]
   verbs: ["get", "list", "delete", "patch"]
 - apiGroups: [""]
   resources: ["pods"]

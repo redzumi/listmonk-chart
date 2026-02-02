@@ -65,6 +65,11 @@ autoscaling:
   maxReplicas: 3
   targetCPUUtilizationPercentage: 80
 
+## Pod Disruption Budget (improves stability during voluntary disruptions)
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 0  # Allow rolling updates; set to 1 to avoid eviction of single replica
+
 ## Node Selection
 nodeSelector: {}
 tolerations: []
@@ -90,6 +95,17 @@ readinessProbe:
   periodSeconds: 10
   timeoutSeconds: 5
   failureThreshold: 3
+
+# Startup probe: gives app time to start before liveness kills it (avoids crash loops on slow cold start)
+startupProbe:
+  enabled: true
+  httpGet:
+    path: /health
+    port: 9000
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 30  # 30 * 5s = 150s max before liveness takes over
 
 ## Admin Configuration
 admin:
@@ -123,6 +139,14 @@ postgres:
   image:
     repository: "postgres"
     tag: "15"
+  # Pre-upgrade migration job image (used only when upgrading with embedded Postgres)
+  migration:
+    image: bitnami/kubectl:1.30
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1  # Protect single Postgres replica from voluntary eviction
+  # Wait for Postgres to accept connections before starting Listmonk (avoids crash loops)
+  waitForDatabase: true
   storage:
     size: 4Gi
     storageClass: ""

@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "listmonk.name" . }}-postgres
+  name: {{ include "listmonk.postgresStatefulSetName" . }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "listmonk.labels" . | nindent 4 }}
@@ -11,12 +11,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "listmonk.name" . }}-postgres
+      app.kubernetes.io/name: {{ include "listmonk.postgresStatefulSetName" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "listmonk.name" . }}-postgres
+        app.kubernetes.io/name: {{ include "listmonk.postgresStatefulSetName" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       containers:
@@ -38,6 +38,13 @@ spec:
                 secretKeyRef:
                   name: {{ include "listmonk.dbSecretName" . }}
                   key: {{ .Values.database.passwordKey }}
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-h", "localhost", "-U", {{ .Values.database.user | quote }}]
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
           resources:
             {{- toYaml .Values.postgres.resources | nindent 12 }}
           volumeMounts:
@@ -47,7 +54,7 @@ spec:
     - metadata:
         name: data
         labels:
-          app.kubernetes.io/name: {{ include "listmonk.name" . }}-postgres
+          app.kubernetes.io/name: {{ include "listmonk.postgresStatefulSetName" . }}
           app.kubernetes.io/instance: {{ .Release.Name }}
       spec:
         accessModes: ["ReadWriteOnce"]

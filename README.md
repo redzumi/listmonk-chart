@@ -7,9 +7,10 @@ A production-ready Helm chart for deploying [Listmonk](https://listmonk.app) - a
 - ✅ Embedded PostgreSQL (no operator required)
 - ✅ Optional SMTP secret generation from values
 - ✅ Ingress with TLS (controller-agnostic)
-- ✅ Health probes and resource limits
+- ✅ Health probes (liveness, readiness, startup) and resource limits
 - ✅ Secure credential management with Kubernetes secrets
 - ✅ Simple Helm-only install/uninstall
+- ✅ Stability: PodDisruptionBudgets, DB wait init, Postgres readiness probe, job timeouts
 
 ## Prerequisites
 
@@ -83,6 +84,8 @@ ingress:
 
 The chart creates an embedded Postgres StatefulSet, Listmonk deployment, and
 supporting resources in one Helm install/upgrade.
+
+**Stability:** PodDisruptionBudgets protect Postgres (and optionally Listmonk) during voluntary disruptions. When `postgres.waitForDatabase` is true (default), Listmonk pods wait for Postgres to accept connections before starting. A startup probe gives the app time to boot before liveness is enforced. Init and migration jobs use time limits and backoff so they don’t hang indefinitely.
 
 ### Manual SMTP Configuration
 

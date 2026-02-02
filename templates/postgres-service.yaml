@@ -13,6 +13,6 @@ spec:
       port: 5432
       targetPort: 5432
   selector:
-    app.kubernetes.io/name: {{ include "listmonk.name" . }}-postgres
+    app.kubernetes.io/name: {{ include "listmonk.postgresStatefulSetName" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
