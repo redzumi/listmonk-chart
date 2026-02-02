@@ -137,6 +137,8 @@ If the StatefulSet name changes (e.g. you change `nameOverride`), Kubernetes cre
 
 Due to changes in the PostgreSQL StatefulSet configuration, upgrades from chart versions before 2.0.0 are handled automatically by a pre-upgrade hook: it scales down the StatefulSet, deletes it with `--cascade=orphan` (so PVCs are preserved), and lets Helm recreate it with the new spec. Your data is safe—the PVC is reattached automatically.
 
+**If the migration hook fails** (e.g. `BackoffLimitExceeded`): set `postgres.migration.enabled: false`, then run the manual steps below and retry the upgrade. Check the job logs with `kubectl logs -n <namespace> job/<release-name>-postgres-migration` to see why it failed.
+
 If you prefer to migrate manually:
 
 ```bash
