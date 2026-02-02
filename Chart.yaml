@@ -2,7 +2,7 @@ apiVersion: v2
 name: listmonk
 description: Self-hosted newsletter and mailing list manager
 type: application
-version: 2.0.0
+version: 2.0.1
 appVersion: "v6.0.0"
 keywords:
   - listmonk
@@ -12,19 +12,25 @@ keywords:
 home: https://listmonk.app
 sources:
   - https://github.com/knadh/listmonk
+  - https://github.com/redzumi/listmonk-chart
 maintainers:
-  - name: Nova Assistant AI
+  - name: redzumi
+    url: https://github.com/redzumi
 annotations:
   # Artifact Hub annotations (https://artifacthub.io/docs/topics/annotations/helm/)
   artifacthub.io/category: streaming-messaging
   artifacthub.io/license: Apache-2.0
   artifacthub.io/changes: |
-    - kind: breaking
-      description: PostgreSQL StatefulSet requires migration for upgrades from chart versions < 2.0.0 (automated via pre-upgrade hook)
+    - kind: added
+      description: RBAC for statefulsets/scale so migration hook can scale Postgres; postgres.migration.enabled to skip hook; backoffLimit 3
+    - kind: fixed
+      description: Migration hook Forbidden on statefulsets/scale - added scale subresource to Role
   artifacthub.io/links: |
     - name: Listmonk
       url: https://listmonk.app
-    - name: Source
+    - name: Chart source
+      url: https://github.com/redzumi/listmonk-chart
+    - name: App source
       url: https://github.com/knadh/listmonk
     - name: Support
       url: https://github.com/knadh/listmonk/issues

@@ -19,5 +19,8 @@
 #     version: "*-dev"
 
 repositoryID: ""
-owners: []
+
+owners:
+  - name: redzumi
+    email: ""
 ignore: []
