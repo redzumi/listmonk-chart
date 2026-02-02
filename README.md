@@ -191,6 +191,18 @@ A workflow builds the Helm repo and deploys it to GitHub Pages on every push to 
 4. **(Optional) Verified publisher**  
    After adding the repo, copy its **repository ID** from Artifact Hub, set it in `artifacthub-repo.yml` in the repo root, and push. The “Verified publisher” badge will appear after the next re-index.
 
+**If Artifact Hub says “the url provided does not point to a valid Helm repository”:**
+
+- **Use the deployed URL, not the GitHub repo URL.**  
+  Correct: `https://<owner>.github.io/<repo>`  
+  Wrong: `https://github.com/<owner>/<repo>`
+- **Set Pages source to GitHub Actions.**  
+  Repo → **Settings** → **Pages** → **Source**: **GitHub Actions** (not “Deploy from a branch”).
+- **Run the workflow once.**  
+  Push to `main`/`master` or **Actions** → **Publish Helm repo** → **Run workflow**. Wait until the workflow succeeds.
+- **Confirm the repo is live.**  
+  Open `https://<owner>.github.io/<repo>/index.yaml` in your browser. You should see YAML (chart index). If you see 404 or an HTML page, fix Pages/workflow first, then add the URL in Artifact Hub.
+
 ### Option B: Manual build and branch-based Pages
 
 If you prefer to deploy from a branch and folder:

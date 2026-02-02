@@ -55,3 +55,17 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deploy
         uses: actions/deploy-pages@v4
+
+      - name: Verify Helm repo
+        run: |
+          BASE="${{ steps.deploy.outputs.page_url }}"
+          echo "Helm repo URL for Artifact Hub (use exactly this, no trailing slash):"
+          echo "$BASE"
+          echo ""
+          HTTP=$(curl -sS -o /dev/null -w "%{http_code}" "$BASE/index.yaml")
+          if [ "$HTTP" != "200" ]; then
+            echo "::error::index.yaml returned HTTP $HTTP (expected 200). Artifact Hub will reject this URL."
+            exit 1
+          fi
+          echo "✓ index.yaml is reachable (HTTP 200)"
+          echo "Add this URL in Artifact Hub: $BASE"
