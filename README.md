@@ -1,4 +1,5 @@
 # Listmonk Helm Chart
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/listmonk-chart)](https://artifacthub.io/packages/search?repo=listmonk-chart)
 
 Production-ready Helm chart for [Listmonk](https://listmonk.app) — self-hosted newsletter and mailing list manager.
 
