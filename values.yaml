@@ -141,7 +141,7 @@ postgres:
     tag: "15"
   # Pre-upgrade migration job image (used only when upgrading with embedded Postgres)
   migration:
-    image: bitnami/kubectl:1.30
+    image: bitnamilegacy/kubectl:1.29.9  # versioned tag from Bitnami Legacy (bitnami/kubectl:1.30 not found)
   podDisruptionBudget:
     enabled: true
     minAvailable: 1  # Protect single Postgres replica from voluntary eviction

@@ -22,7 +22,7 @@ spec:
       serviceAccountName: {{ include "listmonk.fullname" . }}-migration
       containers:
       - name: migrate
-        image: {{ .Values.postgres.migration.image | default "bitnami/kubectl:1.30" }}
+        image: {{ .Values.postgres.migration.image | default "bitnamilegacy/kubectl:1.29.9" }}
         command:
         - /bin/bash
         - -c
