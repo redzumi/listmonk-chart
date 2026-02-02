@@ -1,5 +1,14 @@
 ✓ Listmonk has been installed successfully!
 
+{{- if not .Release.IsInstall }}
+
+⚠️  UPGRADE NOTICE: If you lost data after upgrade, check for orphaned PVCs:
+  kubectl get pvc -n {{ .Release.Namespace }}
+
+To recover, see: https://github.com/redzumi/listmonk-chart#data-recovery
+
+{{- end }}
+
 📧 Application Details:
   URL: https://{{ (index .Values.ingress.hosts 0).host }}
   Admin User: {{ .Values.admin.username }}

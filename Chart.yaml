@@ -2,7 +2,7 @@ apiVersion: v2
 name: listmonk
 description: Self-hosted newsletter and mailing list manager
 type: application
-version: 1.0.0
+version: 2.0.0
 appVersion: "v6.0.0"
 keywords:
   - listmonk
@@ -18,6 +18,9 @@ annotations:
   # Artifact Hub annotations (https://artifacthub.io/docs/topics/annotations/helm/)
   artifacthub.io/category: streaming-messaging
   artifacthub.io/license: Apache-2.0
+  artifacthub.io/changes: |
+    - kind: breaking
+      description: PostgreSQL StatefulSet requires migration for upgrades from chart versions < 2.0.0 (automated via pre-upgrade hook)
   artifacthub.io/links: |
     - name: Listmonk
       url: https://listmonk.app

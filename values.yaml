@@ -8,7 +8,10 @@ image:
   tag: "v6.0.0"
 
 imagePullSecrets: []
+# CRITICAL: Do not change after first install when using embedded Postgres - they affect StatefulSet/PVC naming.
+# Changing nameOverride changes the StatefulSet name; a new PVC will be created and your existing data PVC will be orphaned.
 nameOverride: ""
+# Changing fullnameOverride can affect resource names; keep stable across upgrades to avoid orphaned PVCs.
 fullnameOverride: ""
 
 ## Service Account

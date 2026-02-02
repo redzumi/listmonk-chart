@@ -114,7 +114,40 @@ No label mismatch issues!
 helm upgrade listmonk . -n listmonk
 ```
 
-The chart reconciles the Postgres CR and Listmonk deployment on each upgrade.
+The chart reconciles the Postgres StatefulSet and Listmonk deployment on each upgrade.
+
+### ⚠️ IMPORTANT: StatefulSet name stability
+
+**The StatefulSet name must remain stable** to preserve your database. If you set `nameOverride` or `fullnameOverride`, you **must** use the same values on every upgrade.
+
+#### PVC naming pattern
+
+PVCs created by the embedded Postgres StatefulSet are named:
+
+`data-<statefulset-name>-<ordinal>`
+
+The StatefulSet name is `<nameOverride or chart name>-postgres` (e.g. with defaults: `listmonk-postgres`), so the PVC is typically **`data-listmonk-postgres-0`**.
+
+If the StatefulSet name changes (e.g. you change `nameOverride`), Kubernetes creates a **new** PVC and the old one is **orphaned**—your data remains on the old PVC but is no longer attached. See [Data recovery](#data-recovery) if this happens.
+
+### From versions < 2.0.0
+
+Due to changes in the PostgreSQL StatefulSet configuration, upgrades from chart versions before 2.0.0 are handled automatically by a pre-upgrade hook: it scales down the StatefulSet, deletes it with `--cascade=orphan` (so PVCs are preserved), and lets Helm recreate it with the new spec. Your data is safe—the PVC is reattached automatically.
+
+If you prefer to migrate manually:
+
+```bash
+# Scale down the StatefulSet
+kubectl scale statefulset <release-name>-postgres -n <namespace> --replicas=0
+
+# Delete the StatefulSet (PVCs are preserved)
+kubectl delete statefulset <release-name>-postgres -n <namespace> --cascade=orphan
+
+# Now upgrade normally
+helm upgrade <release-name> . --namespace <namespace>
+```
+
+Replace `<release-name>` with your Helm release name (e.g. `listmonk`) and `<namespace>` with your namespace.
 
 ## Uninstalling
 
@@ -124,6 +157,28 @@ helm uninstall listmonk -n listmonk
 
 Helm will remove chart-managed resources. If you want a full purge (PVCs and
 generated secrets), delete them manually after uninstall.
+
+## Data recovery
+
+If an upgrade created a new PVC and your data is on an **orphaned** PVC (e.g. you changed `nameOverride` or the StatefulSet was recreated with a different name):
+
+1. **List PVCs** in the release namespace:
+   ```bash
+   kubectl get pvc -n <namespace>
+   ```
+   Identify the old PVC (e.g. `data-listmonk-postgres-0`) and any new one.
+
+2. **Scale down** the Postgres StatefulSet and delete it so you can reattach the old PVC:
+   ```bash
+   kubectl scale statefulset <statefulset-name> -n <namespace> --replicas=0
+   kubectl delete statefulset <statefulset-name> -n <namespace> --cascade=orphan
+   ```
+
+3. **Upgrade again** so Helm recreates the StatefulSet. The new StatefulSet will create a new PVC by default. To use the old PVC instead you must either:
+   - Restore the previous `nameOverride` / naming so the StatefulSet name matches the orphaned PVC, then upgrade; or
+   - Manually patch the new StatefulSet’s volume to use the existing PVC (advanced), or copy data from the old PVC into the new one.
+
+4. **Safest approach**: Use the same `nameOverride` and `fullnameOverride` on every install and upgrade so the StatefulSet name never changes and the same PVC is always used.
 
 ## Troubleshooting
 
