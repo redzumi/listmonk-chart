@@ -18,7 +18,7 @@
 #   - name: some-chart
 #     version: "*-dev"
 
-repositoryID: ""
+repositoryID: "f1427ddf-6cfe-4fb5-92a6-88ce7ce28e92"
 
 owners:
   - name: redzumi
